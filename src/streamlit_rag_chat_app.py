@@ -178,13 +178,32 @@ def download_and_extract_indexes(url, extract_to='saved_indexes'):
     zip_path = 'saved_indexes.zip'
     if not os.path.exists(extract_to):
         print('Downloading saved_indexes...')
-        r = requests.get(url)
+
+        headers = {
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        # Get Hugging Face token from secrets if available
+        hf_token = st.secrets.get("HF_TOKEN", None)
+        if hf_token:
+            headers["Authorization"] = f"Bearer {hf_token}"
+
+        # Download the ZIP file
+        r = requests.get(url, headers=headers)
+
+        # Safety check: verify it's a ZIP
+        if r.headers.get("Content-Type") != "application/zip":
+            raise ValueError("Downloaded content is not a ZIP file. Check the URL or token.")
+
         with open(zip_path, 'wb') as f:
             f.write(r.content)
+
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall('.')
+
         os.remove(zip_path)
         print('saved_indexes ready!')
+
 
 # Replace with your actual Hugging Face download link:
 download_and_extract_indexes('https://huggingface.co/datasets/ines-epfl-ethz/SW4retrieval/tree/main/saved_indexes')
