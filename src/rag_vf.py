@@ -25,7 +25,11 @@ HF_JSON_URL = "https://huggingface.co/datasets/ines-epfl-ethz/SW4retrieval/resol
 # Download the JSON from Hugging Face if not present
 if not Path(json_path).exists():
     print(f"Downloading {Path(json_path).name} from Hugging Face...")
-    response = requests.get(HF_JSON_URL)
+    headers = {"User-Agent": "Mozilla/5.0"}
+    hf_token = os.environ.get("HF_TOKEN", None)
+    if hf_token:
+        headers["Authorization"] = f"Bearer {hf_token}"
+    response = requests.get(HF_JSON_URL, headers=headers)
     response.raise_for_status()
     with open(json_path, "wb") as f:
         f.write(response.content)

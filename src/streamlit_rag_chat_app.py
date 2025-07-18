@@ -330,7 +330,11 @@ def main():
     # Download the JSON from Hugging Face if not present
     if not json_path.exists():
         print(f"Downloading {json_path.name} from Hugging Face...")
-        response = requests.get(HF_JSON_URL)
+        headers = {"User-Agent": "Mozilla/5.0"}
+        hf_token = st.secrets.get("HF_TOKEN", None)
+        if hf_token:
+            headers["Authorization"] = f"Bearer {hf_token}"
+        response = requests.get(HF_JSON_URL, headers=headers)
         response.raise_for_status()
         with open(json_path, "wb") as f:
             f.write(response.content)
