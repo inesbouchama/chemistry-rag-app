@@ -10,3 +10,4 @@ easyocr>=1.6.0
 python-dotenv>=1.0.0
 agno>=0.1.0
 openrouter>=0.1.0 
+openai
