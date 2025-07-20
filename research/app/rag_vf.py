@@ -63,6 +63,17 @@ class ChemistryRAG:
             self._save_indexes()
 
     def _check_saved_files(self):
+        print('Checking for saved files in:', self.save_dir)
+        required_files = [
+            "text_embeddings.npy",
+            "image_embeddings.npy",
+            "text_index.faiss",
+            "image_index.faiss",
+            "quadruplets_metadata.pkl"
+        ]
+        for fname in required_files:
+            fpath = os.path.join(self.save_dir, fname)
+            print(f"  {fname}: {os.path.exists(fpath)} (path: {fpath})")
         return (os.path.exists(os.path.join(self.save_dir, "text_embeddings.npy")) and
                 os.path.exists(os.path.join(self.save_dir, "image_embeddings.npy")) and
                 os.path.exists(os.path.join(self.save_dir, "text_index.faiss")) and
@@ -358,6 +369,12 @@ class ChemistryRAG:
     def call_benchmark(self, benchmark_path: str):
         acc = rag.evaluate_rag_accuracy(benchmark_path="benchmark/data/mcq_labelled.csv",)
         print(f"RAG Accuracy: {acc:.2%}")
+
+    def generate_answer(self, question: str, options: List[str]) -> str:
+        """Generate an answer to a chemistry question using the RAG system."""
+        retrievals, answer = self.answer_question(question, options)
+        answer = self.extract_answer(answer)
+        return answer
 
     # Example usage code (commented out to avoid indentation issues)
     # count = 54

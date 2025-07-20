@@ -1,0 +1,22 @@
+# Core libraries
+torch
+numpy
+Pillow
+torchvision
+matplotlib
+tiktoken
+# Embedding models
+sentence-transformers
+
+# Transformer models (CLIP, Llama, etc.)
+transformers
+
+# Vector search
+faiss-gpu
+
+# Typing (built-in in Python, no need to install typing manually)
+
+# Required by LlamaTokenizer
+sentencepiece
+
+protobuf
