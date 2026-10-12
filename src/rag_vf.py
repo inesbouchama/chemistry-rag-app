@@ -19,21 +19,35 @@ import requests
 from transformers import CLIPProcessor, CLIPModel, LlamaForCausalLM, LlamaTokenizer, AutoTokenizer, AutoModelForCausalLM, AutoModelForVision2Seq, AutoProcessor
 from pathlib import Path
 
+HF_DATASET_URL = "https://huggingface.co/datasets/ines-epfl-ethz/SW4retrieval/resolve/main"
 json_path = str(Path(__file__).parent.parent / "triplets_with_hf_paths.json")
-HF_JSON_URL = "https://huggingface.co/datasets/ines-epfl-ethz/SW4retrieval/resolve/main/triplets_with_hf_paths.json"
+
+
+def download_from_hf(filename: str, dest: str):
+    """Download a file from the private Hugging Face dataset, authenticated with HF_TOKEN.
+
+    On Streamlit Cloud, top-level secrets are exposed as environment variables.
+    """
+    print(f"Downloading {filename} from Hugging Face...")
+    headers = {"User-Agent": "Mozilla/5.0"}
+    hf_token = os.environ.get("HF_TOKEN")
+    if hf_token:
+        headers["Authorization"] = f"Bearer {hf_token}"
+    response = requests.get(f"{HF_DATASET_URL}/{filename}", headers=headers, timeout=300)
+    if response.status_code in (401, 403):
+        raise RuntimeError(
+            f"Hugging Face refused the download of {filename} (HTTP {response.status_code}). "
+            + ("HF_TOKEN is not set." if not hf_token else "HF_TOKEN is invalid or has no read access to the dataset.")
+        )
+    response.raise_for_status()
+    with open(dest, "wb") as f:
+        f.write(response.content)
+    print(f"Downloaded {filename}!")
+
 
 # Download the JSON from Hugging Face if not present
 if not Path(json_path).exists():
-    print(f"Downloading {Path(json_path).name} from Hugging Face...")
-    headers = {"User-Agent": "Mozilla/5.0"}
-    hf_token = os.environ.get("HF_TOKEN", None)
-    if hf_token:
-        headers["Authorization"] = f"Bearer {hf_token}"
-    response = requests.get(HF_JSON_URL, headers=headers)
-    response.raise_for_status()
-    with open(json_path, "wb") as f:
-        f.write(response.content)
-    print(f"Downloaded {Path(json_path).name}!")
+    download_from_hf("triplets_with_hf_paths.json", json_path)
 
 
 def get_speaker_and_filename(path, pos1, pos2):
