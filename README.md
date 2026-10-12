@@ -21,9 +21,15 @@ src/
 └── streamlit_rag_chat_app.py   # Streamlit search and chat interface
 docs/
 └── semester_project_report.pdf
+research/
+├── Retrieval_exploration/      # Retrieval experiments (CLIP, Tesseract, EasyOCR, DONUT, ModernBERT, reranking)
+├── benchmark/                  # MCQ benchmark creation and evaluation of multimodal models
+└── data_prep/                  # Matching of extracted slides to Synthesis Workshop YouTube videos
 .devcontainer/                  # Codespaces / dev container configuration
 requirements.txt
 ```
+
+The `research/` code comes from the project's development repository and is kept for reference. It expects the slide dataset and benchmark files under `data/` and `benchmark/data/`, which are not included.
 
 ## Setup
 
