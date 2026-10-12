@@ -1,0 +1,11 @@
+# Downloaded at runtime from Hugging Face
+triplets_with_hf_paths.json
+saved_indexes/
+saved_indexes.zip
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+__pycache__/
+.venv/

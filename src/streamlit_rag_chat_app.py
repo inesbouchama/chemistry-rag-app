@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 from agno.media import Image
 from agno.models.openrouter import OpenRouter
 from agno.agent import Agent
-from rag_vf import ChemistryRAG
 import streamlit as st
 import sys
 import os
@@ -12,15 +11,20 @@ from pathlib import Path
 from collections import defaultdict
 from typing import List, Dict, Any
 import zipfile
-import requests
-from pathlib import Path
 
 # Add the current directory to Python path to import rag_vf
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Load environment variables
+# Load environment variables (HF_TOKEN must be set before rag_vf is imported)
 load_dotenv(dotenv_path=".env")
+
+# rag_vf downloads the slide metadata on import; Streamlit Cloud redacts
+# exception messages, so download errors are shown with st.error instead.
+try:
+    from rag_vf import ChemistryRAG, download_from_hf, json_path as rag_json_path
+except RuntimeError as e:
+    st.error(str(e))
+    st.stop()
 
 # Available models for selection
 AVAILABLE_MODELS = {
@@ -185,30 +189,14 @@ def generate_chat_response(agent: Agent, question: str, retrieved_slides: List[D
         return f"Error: {str(e)}"
 
 
-def download_and_extract_indexes(url, extract_to='saved_indexes'):
+def download_and_extract_indexes(extract_to='saved_indexes'):
     zip_path = 'saved_indexes.zip'
     if not os.path.exists(extract_to):
-        print('Downloading saved_indexes...')
+        download_from_hf('saved_indexes.zip', zip_path)
 
-        headers = {
-            "User-Agent": "Mozilla/5.0"
-        }
-
-        # Get Hugging Face token from secrets if available
-        hf_token = st.secrets.get("HF_TOKEN", None)
-        if hf_token:
-            headers["Authorization"] = f"Bearer {hf_token}"
-
-        # Download the ZIP file
-        r = requests.get(url, headers=headers)
-
-        # Safety check: verify it's a ZIP
-        if r.headers.get("Content-Type") != "application/zip":
-            raise ValueError(
-                "Downloaded content is not a ZIP file. Check the URL or token.zip")
-
-        with open(zip_path, 'wb') as f:
-            f.write(r.content)
+        if not zipfile.is_zipfile(zip_path):
+            os.remove(zip_path)
+            raise ValueError("Downloaded saved_indexes.zip is not a ZIP file.")
 
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall('.')
@@ -217,9 +205,11 @@ def download_and_extract_indexes(url, extract_to='saved_indexes'):
         print('saved_indexes ready!')
 
 
-# Replace with your actual Hugging Face download link:
-download_and_extract_indexes(
-    'https://huggingface.co/datasets/ines-epfl-ethz/SW4retrieval/resolve/main/saved_indexes.zip')
+try:
+    download_and_extract_indexes()
+except (RuntimeError, ValueError) as e:
+    st.error(str(e))
+    st.stop()
 
 
 def main():
@@ -324,21 +314,8 @@ def main():
             st.success("Chat history cleared!")
             st.rerun()
 
-    json_path = Path(__file__).parent.parent / "triplets_with_hf_paths.json"
-    HF_JSON_URL = "https://huggingface.co/datasets/ines-epfl-ethz/SW4retrieval/resolve/main/triplets_with_hf_paths.json"
-
-    # Download the JSON from Hugging Face if not present
-    if not json_path.exists():
-        print(f"Downloading {json_path.name} from Hugging Face...")
-        headers = {"User-Agent": "Mozilla/5.0"}
-        hf_token = st.secrets.get("HF_TOKEN", None)
-        if hf_token:
-            headers["Authorization"] = f"Bearer {hf_token}"
-        response = requests.get(HF_JSON_URL, headers=headers)
-        response.raise_for_status()
-        with open(json_path, "wb") as f:
-            f.write(response.content)
-        print(f"Downloaded {json_path.name}!")
+    # Downloaded by rag_vf on import
+    json_path = Path(rag_json_path)
 
     # Initialize RAG system
     @st.cache_resource
