@@ -28,14 +28,14 @@ except RuntimeError as e:
 
 # Available models for selection
 AVAILABLE_MODELS = {
-    "Qwen2.5-VL-7B": "qwen/qwen-2.5-vl-7b-instruct",
-    "Qwen2.5-VL-14B": "qwen/qwen-2.5-vl-14b-instruct",
-    "Gemini Pro 1.5": "google/gemini-pro-1.5",
-    "Gemini Flash": "google/gemini-flash-1.5",
+    "Qwen3-VL-8B": "qwen/qwen3-vl-8b-instruct",
+    "Qwen3-VL-30B": "qwen/qwen3-vl-30b-a3b-instruct",
+    "Gemini 2.5 Pro": "google/gemini-2.5-pro",
+    "Gemini 2.5 Flash": "google/gemini-2.5-flash",
     "GPT-4o": "openai/gpt-4o",
     "GPT-4o Mini": "openai/gpt-4o-mini",
-    "Claude 3.5 Sonnet": "anthropic/claude-3.5-sonnet",
-    "Claude 3.5 Haiku": "anthropic/claude-3.5-haiku"
+    "Claude Sonnet 4.5": "anthropic/claude-sonnet-4.5",
+    "Claude Haiku 4.5": "anthropic/claude-haiku-4.5"
 }
 
 
@@ -258,12 +258,12 @@ def main():
             "GPT-4o Mini": "openai/gpt-4o-mini"
         }
         OPENROUTER_MODELS = {
-            "Qwen2.5-VL-7B": "qwen/qwen-2.5-vl-7b-instruct",
-            "Qwen2.5-VL-14B": "qwen/qwen-2.5-vl-14b-instruct",
-            "Gemini Pro 1.5": "google/gemini-pro-1.5",
-            "Gemini Flash": "google/gemini-flash-1.5",
-            "Claude 3.5 Sonnet": "anthropic/claude-3.5-sonnet",
-            "Claude 3.5 Haiku": "anthropic/claude-3.5-haiku"
+            "Qwen3-VL-8B": "qwen/qwen3-vl-8b-instruct",
+            "Qwen3-VL-30B": "qwen/qwen3-vl-30b-a3b-instruct",
+            "Gemini 2.5 Pro": "google/gemini-2.5-pro",
+            "Gemini 2.5 Flash": "google/gemini-2.5-flash",
+            "Claude Sonnet 4.5": "anthropic/claude-sonnet-4.5",
+            "Claude Haiku 4.5": "anthropic/claude-haiku-4.5"
         }
         if provider == "OpenAI":
             model_dict = OPENAI_MODELS
